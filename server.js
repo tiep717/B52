@@ -1,14 +1,15 @@
-const { io } = require("socket.io-client");
-const express = require("express");
+const WebSocket = require('ws');
+const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 5050;
 
 // =================================================================
-// === Cấu hình ===
+// === Cấu hình cho B52 (đã cập nhật URL) ===
 // =================================================================
-// Chỉ cần URL gốc, các tham số sẽ được đưa vào phần query
-const URL = "wss://ws06.wsmt8g.cc"; 
-const AUTH_MESSAGE = [
+const B52_WEBSOCKET_URL = "wss://cardbodergs.weskb5gams.net/websocket"; 
+
+// Sử dụng tin nhắn xác thực bạn đã cung cấp
+const B52_AUTH_MESSAGE = [
   1,
   "MiniGame",
   {
@@ -21,43 +22,33 @@ const AUTH_MESSAGE = [
 let historyResults = []; 
 
 function connectWebSocket() {
-    console.log("Đang kết nối đến server Socket.IO v2...");
-    
-    const socket = io(URL, {
-        // === PHẦN SỬA LỖI HOÀN CHỈNH ===
-        reconnection: false,
-        transports: ["websocket"],
-        path: "/socket.io/", // Thêm lại đường dẫn
-        // Thêm lại các tham số truy vấn (quan trọng nhất là token)
-        query: {
-            token: "13-e2bd9e1c976d3e263f88f6002da43b20",
-            sv: "v5",
-            env: "portal",
-            games: "all",
-            ssid: "82edcafb46d54d52a5fab04ae8ec447b",
-            EIO: "3",
-            transport: "websocket"
+    console.log("Đang kết nối đến B52 (card server)...");
+    const ws = new WebSocket(B52_WEBSOCKET_URL, {
+        headers: {
+            "User-Agent": "Mozilla/5.0",
+            "Origin": "https://i.b52.club"
         }
     });
 
-    socket.on('connect', () => {
-        console.log("[✅] Đã kết nối Socket.IO thành công! SID:", socket.id);
-        socket.send(AUTH_MESSAGE);
+    ws.on('open', () => {
+        console.log("[✅] Đã kết nối WebSocket đến B52!");
+        // Gửi tin nhắn xác thực
+        ws.send(JSON.stringify(B52_AUTH_MESSAGE));
         console.log("Đã gửi tin nhắn xác thực.");
     });
 
-    socket.onAny((eventName, ...args) => {
-        console.log(`Nhận được sự kiện '${eventName}':`, args);
-    });
-    
-    socket.on('disconnect', (reason) => {
-        console.log(`[🔌] Mất kết nối: ${reason}. Sẽ kết nối lại sau 3 giây.`);
-        socket.close();
-        setTimeout(connectWebSocket, 3000);
+    ws.on('message', (message) => {
+        const rawMessage = message.toString();
+        console.log("Nhận được từ B52:", rawMessage);
     });
 
-    socket.on('connect_error', (err) => {
-        console.error("[⚠️] Lỗi kết nối:", err.message);
+    ws.on('close', () => {
+        console.log(`[🔌] Mất kết nối. Sẽ kết nối lại sau 1 giây.`);
+        setTimeout(connectWebSocket, 1000);
+    });
+
+    ws.on('error', (err) => {
+        console.error("[⚠️] Lỗi WebSocket:", err.message);
     });
 }
 
