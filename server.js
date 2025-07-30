@@ -6,6 +6,7 @@ const PORT = process.env.PORT || 5050;
 // =================================================================
 // === Cấu hình ===
 // =================================================================
+// Chỉ cần URL gốc, các tham số sẽ được đưa vào phần query
 const URL = "wss://ws06.wsmt8g.cc"; 
 const AUTH_MESSAGE = [
   1,
@@ -22,13 +23,21 @@ let historyResults = [];
 function connectWebSocket() {
     console.log("Đang kết nối đến server Socket.IO v2...");
     
-    // Dùng thư viện socket.io-client để kết nối
     const socket = io(URL, {
-        // === PHẦN SỬA LỖI TƯƠNG THÍCH ===
-        reconnection: false, // Tắt tự động kết nối lại của thư viện
+        // === PHẦN SỬA LỖI HOÀN CHỈNH ===
+        reconnection: false,
         transports: ["websocket"],
-        // Thêm tùy chọn này để client v4 có thể "nói chuyện" với server v2
-        protocolVersion: 5 
+        path: "/socket.io/", // Thêm lại đường dẫn
+        // Thêm lại các tham số truy vấn (quan trọng nhất là token)
+        query: {
+            token: "13-e2bd9e1c976d3e263f88f6002da43b20",
+            sv: "v5",
+            env: "portal",
+            games: "all",
+            ssid: "82edcafb46d54d52a5fab04ae8ec447b",
+            EIO: "3",
+            transport: "websocket"
+        }
     });
 
     socket.on('connect', () => {
