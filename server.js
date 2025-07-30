@@ -20,39 +20,27 @@ const AUTH_MESSAGE = [
 let historyResults = []; 
 
 function connectWebSocket() {
-    console.log("Đang kết nối đến server Socket.IO...");
+    console.log("Đang kết nối đến server Socket.IO v2...");
     
     // Dùng thư viện socket.io-client để kết nối
     const socket = io(URL, {
-        path: "/socket.io/",
+        // === PHẦN SỬA LỖI TƯƠNG THÍCH ===
+        reconnection: false, // Tắt tự động kết nối lại của thư viện
         transports: ["websocket"],
-        query: {
-            token: "13-e2bd9e1c976d3e263f88f6002da43b20",
-            sv: "v5",
-            env: "portal",
-            games: "all",
-            ssid: "82edcafb46d54d52a5fab04ae8ec447b",
-            EIO: "3",
-            t: "PXPy2d0"
-        }
+        // Thêm tùy chọn này để client v4 có thể "nói chuyện" với server v2
+        protocolVersion: 5 
     });
 
-    // Sự kiện 'connect' tương đương với 'open' của ws
     socket.on('connect', () => {
         console.log("[✅] Đã kết nối Socket.IO thành công! SID:", socket.id);
-        
-        // Gửi tin nhắn xác thực. 
-        // socket.send là một cách viết khác của socket.emit('message', ...)
         socket.send(AUTH_MESSAGE);
         console.log("Đã gửi tin nhắn xác thực.");
     });
 
-    // Lắng nghe tất cả các sự kiện để debug
     socket.onAny((eventName, ...args) => {
         console.log(`Nhận được sự kiện '${eventName}':`, args);
     });
-
-    // Sự kiện 'disconnect' tương đương với 'close' của ws
+    
     socket.on('disconnect', (reason) => {
         console.log(`[🔌] Mất kết nối: ${reason}. Sẽ kết nối lại sau 3 giây.`);
         socket.close();
