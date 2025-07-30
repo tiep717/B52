@@ -15,7 +15,7 @@ const B52_AUTH_MESSAGE = [
   {
     "agentId": "1",
     "accessToken": "13-5be670a54d6000d54083eefbc8ecf615",
-    "reconnect": false 
+    "reconnect": true 
   }
 ];
 const messagesToSend = [
