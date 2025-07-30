@@ -1,13 +1,12 @@
 {
-  "name": "new-game-tool",
+  "name": "b52-tool",
   "version": "1.0.0",
-  "description": "Tool for new game",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.18.2",
-    "socket.io-client": "^4.7.5"
+    "socket.io-client": "^4.7.5" // <-- Đổi từ bản cũ lên bản 4.7.5
   }
 }
