@@ -6,7 +6,7 @@ const PORT = process.env.PORT || 5050;
 // =================================================================
 // === Cấu hình cho B52 ===
 // =================================================================
-const B52_WEBSOCKET_URL = "wss://minybbrdergs.wesb53games.net/websocket"; 
+const B52_WEBSOCKET_URL = "wss://minybordergs.weskb5gams.net/websocket"; 
 const B52_AUTH_MESSAGE = [
   1,
   "Minigame",
