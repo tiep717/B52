@@ -6,7 +6,7 @@ const PORT = process.env.PORT || 5050;
 // =================================================================
 // === Cấu hình cho B52 (đã cập nhật URL) ===
 // =================================================================
-const B52_WEBSOCKET_URL = "wss://cardbodergs.weskb5gams.net/websocket"; 
+const B52_WEBSOCKET_URL = "wss://minybordergs.weskb5gams.net/websocket"; 
 
 // Sử dụng tin nhắn xác thực bạn đã cung cấp
 const B52_AUTH_MESSAGE = [
