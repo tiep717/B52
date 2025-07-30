@@ -1,12 +1,12 @@
-const WebSocket = require('ws');
-const express = require('express');
+const { io } = require("socket.io-client");
+const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 5050;
 
 // =================================================================
-// === Thông tin mới đã được điền vào đây ===
+// === Cấu hình ===
 // =================================================================
-const NEW_WEBSOCKET_URL = "wss://ws06.wsmt8g.cc/socket.io/?token=13-e2bd9e1c976d3e263f88f6002da43b20&sv=v5&env=portal&games=all&ssid=82edcafb46d54d52a5fab04ae8ec447b&EIO=3&transport=websocket"; 
+const URL = "wss://ws06.wsmt8g.cc"; 
 const AUTH_MESSAGE = [
   1,
   "MiniGame",
@@ -17,36 +17,50 @@ const AUTH_MESSAGE = [
   }
 ];
 
-// Biến lưu trữ lịch sử
 let historyResults = []; 
 
 function connectWebSocket() {
-    console.log("Đang kết nối...");
-    const ws = new WebSocket(NEW_WEBSOCKET_URL, {
-        headers: {
-            "User-Agent": "Mozilla/5.0"
+    console.log("Đang kết nối đến server Socket.IO...");
+    
+    // Dùng thư viện socket.io-client để kết nối
+    const socket = io(URL, {
+        path: "/socket.io/",
+        transports: ["websocket"],
+        query: {
+            token: "13-e2bd9e1c976d3e263f88f6002da43b20",
+            sv: "v5",
+            env: "portal",
+            games: "all",
+            ssid: "82edcafb46d54d52a5fab04ae8ec447b",
+            EIO: "3",
+            t: "PXPy2d0"
         }
     });
 
-    ws.on('open', () => {
-        console.log("[✅] Đã kết nối WebSocket!");
-        // Gửi tin nhắn xác thực
-        ws.send(JSON.stringify(AUTH_MESSAGE));
+    // Sự kiện 'connect' tương đương với 'open' của ws
+    socket.on('connect', () => {
+        console.log("[✅] Đã kết nối Socket.IO thành công! SID:", socket.id);
+        
+        // Gửi tin nhắn xác thực. 
+        // socket.send là một cách viết khác của socket.emit('message', ...)
+        socket.send(AUTH_MESSAGE);
         console.log("Đã gửi tin nhắn xác thực.");
     });
 
-    ws.on('message', (message) => {
-        const rawMessage = message.toString();
-        console.log("Nhận được:", rawMessage);
+    // Lắng nghe tất cả các sự kiện để debug
+    socket.onAny((eventName, ...args) => {
+        console.log(`Nhận được sự kiện '${eventName}':`, args);
     });
 
-    ws.on('close', () => {
-        console.log(`[🔌] Mất kết nối. Sẽ kết nối lại sau 1 giây.`);
-        setTimeout(connectWebSocket, 1000);
+    // Sự kiện 'disconnect' tương đương với 'close' của ws
+    socket.on('disconnect', (reason) => {
+        console.log(`[🔌] Mất kết nối: ${reason}. Sẽ kết nối lại sau 3 giây.`);
+        socket.close();
+        setTimeout(connectWebSocket, 3000);
     });
 
-    ws.on('error', (err) => {
-        console.error("[⚠️] Lỗi WebSocket:", err.message);
+    socket.on('connect_error', (err) => {
+        console.error("[⚠️] Lỗi kết nối:", err.message);
     });
 }
 
